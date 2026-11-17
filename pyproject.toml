@@ -1,0 +1,14 @@
+[project]
+name = "pywrite-format"
+version = "0.1.0"
+description = "A Python library for creating and managing structured documents."
+readme = "README.md"
+authors = [
+    { name = "Piroz", email = "stillpiroz@proton.me" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
