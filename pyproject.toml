@@ -3,6 +3,8 @@ name = "pywrite-format"
 version = "0.1.0"
 description = "A Python library for creating and managing structured documents."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Piroz", email = "stillpiroz@proton.me" }
 ]
