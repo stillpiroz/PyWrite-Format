@@ -62,8 +62,35 @@ Please keep the code:
 
 - Simple and readable.
 - Consistent with the existing codebase.
-- Following Python's PEP 8 guidelines.
+- Compliant with Python's PEP 8 guidelines.
 - Properly documented when necessary.
+
+**Additional Formatting Convention:**
+
+When writing a module-level docstring, follow these spacing rules:
+
+- If the module is followed by import statements, leave one blank line between the docstring and the imports.
+- If the module is followed directly by a class, function, or other definition, leave two blank lines between the docstring and the definition.
+
+**Example (imports):**
+
+```python
+"""Define document metadata and timestamp management."""
+
+from dataclasses import dataclass, field
+```
+
+**Example (class definition):**
+
+```python
+"""Core document structure definitions."""
+
+
+class Node:
+    """Base class for all document nodes."""
+
+    pass
+```
 
 ## Zero Dependencies
 
