@@ -1,6 +1,5 @@
 """Define document metadata and timestamp management."""
 
-
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 

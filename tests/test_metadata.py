@@ -1,6 +1,5 @@
 """Test document metadata creation and default values."""
 
-
 from datetime import datetime, timezone
 from unittest.mock import patch
 

@@ -1,6 +1,5 @@
 """Define the document class and its content management."""
 
-
 from pywrite_format.metadata import DocumentMetadata
 
 
