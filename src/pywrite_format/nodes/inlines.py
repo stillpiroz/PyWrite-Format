@@ -4,7 +4,8 @@ Inline elements for creating and formatting text content.
 Provides text, formatting, code, and hyperlink elements.
 """
 
-from pywrite_format.inline_utils import filter_children
+from pywrite_format.nodes.base import Inline
+from pywrite_format.utils.filter_inline_children import filter_children
 
 
 class Text(Inline):
