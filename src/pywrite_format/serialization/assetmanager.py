@@ -23,3 +23,10 @@ class AssetManager:
         self.assets[image_data] = asset_path
 
         return asset_path
+
+    def get(self, asset_path: str) -> bytes:
+        for image_data, path in self.assets.items():
+            if path == asset_path:
+                return image_data
+
+        raise KeyError(f"Asset '{asset_path}' not found.")

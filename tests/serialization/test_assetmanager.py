@@ -51,3 +51,32 @@ def test_asset_counter():
     manager.add(b"\xff\xd8\xff")
 
     assert manager._counter == 2
+
+
+def test_get_existing_asset():
+    manager = AssetManager()
+
+    image_data = b"\x89PNG\r\n\x1a\n"
+    asset_path = manager.add(image_data)
+
+    assert manager.get(asset_path) == image_data
+
+
+def test_get_unknown_asset():
+    manager = AssetManager()
+
+    with pytest.raises(KeyError, match="Asset .* not found"):
+        manager.get("assets/images/unknown.png")
+
+
+def test_get_multiple_assets():
+    manager = AssetManager()
+
+    first_image = b"\x89PNG\r\n\x1a\n"
+    second_image = b"\xff\xd8\xff"
+
+    first_path = manager.add(first_image)
+    second_path = manager.add(second_image)
+
+    assert manager.get(first_path) == first_image
+    assert manager.get(second_path) == second_image
