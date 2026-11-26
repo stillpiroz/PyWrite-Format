@@ -5,66 +5,73 @@ third-party dependencies.
 """
 
 
-IMAGE_SIGNATURES = frozenset({
-    # PNG
-    b"\x89PNG\r\n\x1a\n",
+class ImageDetector:
+    """Identify image formats using their byte signatures."""
 
-    # JPEG
-    b"\xff\xd8\xff",
+    IMAGE_SIGNATURES = {
+        b"\x89PNG\r\n\x1a\n": ".png",
+        b"\xff\xd8\xff": ".jpg",
+        b"GIF87a": ".gif",
+        b"GIF89a": ".gif",
+        b"BM": ".bmp",
+        b"\x00\x00\x01\x00": ".ico",
+        b"\x00\x00\x02\x00": ".cur",
+    }
 
-    # GIF
-    b"GIF87a",
-    b"GIF89a",
+    NETPBM_SIGNATURES = frozenset({
+        b"P1", b"P2", b"P3",
+        b"P4", b"P5", b"P6",
+    })
 
-    # BMP
-    b"BM",
+    NETPBM_WHITESPACE = b" \t\r\n\v\f"
 
-    # Windows Icon / Cursor
-    b"\x00\x00\x01\x00",
-    b"\x00\x00\x02\x00",
-})
+    HEIF_SIGNATURES = {
+        b"avif": ".avif",
+        b"avis": ".avif",
+        b"heic": ".heic",
+        b"heix": ".heic",
+        b"hevc": ".heic",
+        b"hevx": ".heic",
+        b"heim": ".heic",
+        b"heis": ".heic",
+        b"hevm": ".heic",
+        b"hevs": ".heic",
+        b"mif1": ".heif",
+        b"msf1": ".heif",
+    }
 
-NETPBM_SIGNATURES = frozenset({
-    b"P1", b"P2", b"P3",
-    b"P4", b"P5", b"P6",
-})
+    @classmethod
+    def detect(cls, image_data: bytes) -> str | None:
+        """Return the image format or None if unsupported."""
 
-NETPBM_WHITESPACE = b" \t\r\n\v\f"
+        header = image_data[:16]
 
-HEIF_SIGNATURES = frozenset({
-    b"avif", b"avis",
-    b"heic", b"heix",
-    b"hevc", b"hevx",
-    b"heim", b"heis",
-    b"hevm", b"hevs",
-    b"mif1", b"msf1",
-})
+        # Netpbm
+        if header[:2] in cls.NETPBM_SIGNATURES:
+            delimiter = header[2:3]
 
+            if delimiter and delimiter in cls.NETPBM_WHITESPACE:
+                return f".{header[:2].decode().lower()}"
 
-def is_image(image_data: bytes) -> bool:
-    """Check whether byte data starts with a supported image signature.
+            return None
 
-    This function only identifies the image format based on its file
-    signature. It does not validate the file's integrity or guarantee
-    that the image can be decoded.
-    """
+        # WebP
+        if header[:4] == b"RIFF" and header[8:12] == b"WEBP":
+            return ".webp"
 
-    header = image_data[:16]
+        # HEIF / HEIC / AVIF
+        if header[4:8] == b"ftyp":
+            return cls.HEIF_SIGNATURES.get(header[8:12])
 
-    # Netpbm
-    if header[:2] in NETPBM_SIGNATURES:
-        delimiter = header[2:3]
-        return bool(delimiter) and delimiter in NETPBM_WHITESPACE
+        # Standard image signatures
+        for signature, extension in cls.IMAGE_SIGNATURES.items():
+            if header.startswith(signature):
+                return extension
 
-    # WebP
-    if header[:4] == b"RIFF" and header[8:12] == b"WEBP":
-        return True
+        return None
 
-    # HEIF / HEIC / AVIF
-    if header[4:8] == b"ftyp" and header[8:12] in HEIF_SIGNATURES:
-        return True
+    @classmethod
+    def is_image(cls, image_data: bytes) -> bool:
+        """Check whether byte data represents a supported image format."""
 
-    return any(
-        header.startswith(signature)
-        for signature in IMAGE_SIGNATURES
-    )
+        return cls.detect(image_data) is not None
