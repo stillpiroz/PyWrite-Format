@@ -2,14 +2,16 @@ import pytest
 
 from pywrite_format.serialization.serializer import Serializer
 from pywrite_format.serialization.nodes import registry
-from pywrite_format.nodes.blocks import Paragraph
+from pywrite_format.nodes.blocks import Paragraph, Image
 from pywrite_format.nodes.inlines import Text, Bold, Link
 from pywrite_format.styles import Alignment
+from pywrite_format.serialization.assetmanager import AssetManager
+from pywrite_format.exceptions.image import InvalidImageError
 
 
 @pytest.fixture
 def serializer():
-    return Serializer(registry)
+    return Serializer(registry, AssetManager())
 
 
 def test_serialize_text(serializer):
@@ -85,5 +87,47 @@ def test_serialize_nested_nodes(serializer):
                     "text": "World",
                 }
             ],
+        },
+    ]
+
+
+def test_serialize_invalid_image():
+    with pytest.raises(InvalidImageError, match="Invalid or unsupported image data"):
+        Image(image_data=b"fake image data")
+
+
+def test_serialize_single_image(serializer):
+    image_data = b"\x89PNG\r\n\x1a\n"
+
+    node = Image(image_data=image_data)
+
+    result = serializer.serialize(node)
+
+    assert result == {
+        "type": "image",
+        "asset_path": "assets/images/image_1.png",
+    }
+
+
+def test_serialize_duplicate_images(serializer):
+    image_data = b"\x89PNG\r\n\x1a\n"
+
+    node = Paragraph(
+        children=[
+            Image(image_data=image_data),
+            Image(image_data=image_data),
+        ],
+    )
+
+    result = serializer.serialize(node)
+
+    assert result["children"] == [
+        {
+            "type": "image",
+            "asset_path": "assets/images/image_1.png",
+        },
+        {
+            "type": "image",
+            "asset_path": "assets/images/image_1.png",
         },
     ]

@@ -1,10 +1,11 @@
-from pywrite_format.nodes.blocks import Paragraph
+from pywrite_format.nodes.blocks import Paragraph, Image
 from pywrite_format.nodes.inlines import Text, Link
 
 
 class Serializer:
-    def __init__(self, registry):
+    def __init__(self, registry, asset_manager):
         self.registry = registry
+        self.asset_manager = asset_manager
 
     def serialize(self, node):
         return self._serialize_node(node)
@@ -34,5 +35,8 @@ class Serializer:
         
         if isinstance(node, Link):
             data["url"] = node.url
+        
+        if isinstance(node, Image):
+            data["asset_path"] = self.asset_manager.add(node.image_data)
         
         return data
